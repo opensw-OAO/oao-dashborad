@@ -14,9 +14,12 @@ window.addEventListener('DOMContentLoaded', () => {
 
 async function fetchSchedules(committee, year, month, useName) {
   let url = `/api/schedules/?committee=${encodeURIComponent(committee)}&year=${year}&month=${month}`;
+  //console.log(url)
   if (useName) url += "&use_name=true";
   const res = await fetch(url);
-  return await res.json();
+  const data=await res.json();
+   return Array.isArray(data) ? data : [];
+  //return data;
 }
 
   const calendarGrid = document.getElementById("calendarGrid");
@@ -38,17 +41,34 @@ async function fetchSchedules(committee, year, month, useName) {
 
     monthYear.textContent = `${year}년 ${month + 1}월`; // 연도와 월 텍스트
 
-    const schedules = await fetchSchedules(committeeKo, year, month + 1, useName);
+const schedules = await fetchSchedules(committeeKo, year, month + 1, useName);
 
-    calendarGrid.innerHTML = "";  // 그리드 초기화
+if (!schedules || !Array.isArray(schedules)) {
+    console.error("schedules 데이터가 올바르지 않습니다:", schedules);
+    return;
+}
+//console.log(schedules)
+calendarGrid.innerHTML = "";  // 그리드 초기화
 
-    // 날짜별로 그룹핑
-    const scheduleMap = {};
-    schedules.forEach(item => {
-      const day = Number(item.date.split('-')[2]);
-      if (!scheduleMap[day]) scheduleMap[day] = [];
-      scheduleMap[day].push(item);
-    });
+let scheduleMap = {};  // 변경 가능하도록 let 사용
+
+schedules.forEach(item => {
+    if (item.date) {
+        const dateParts = item.date.split('-');
+        const day = Number(dateParts[2]);
+
+        if (!isNaN(day)) {
+            if (!scheduleMap[day]) scheduleMap[day] = [];
+            scheduleMap[day].push(item);
+        } else {
+            console.error("올바르지 않은 날짜 값:", item.date);
+        }
+    } else {
+        console.error("date 값이 없습니다:", item);
+    }
+});
+
+//console.log("최종 scheduleMap:", scheduleMap);
     
     // 요일 헤더 추가
     weekDays.forEach(day => {
@@ -73,51 +93,25 @@ async function fetchSchedules(committee, year, month, useName) {
       const dateText = document.createElement("div");
       dateText.textContent = day;
       dayDiv.appendChild(dateText);
-        // 점 표시용 래퍼 생성
-      const dotWrapper = document.createElement("div");
-      dotWrapper.classList.add("calendar-dots");
-      dayDiv.appendChild(dotWrapper);
-
   
-      // 점 표시 함수
-      function updateDots() {
-        dotWrapper.innerHTML = ""; // 기존 점 제거
+      
+
+     // 점 표시
         if (scheduleMap[day]) {
           const types = [...new Set(scheduleMap[day].map(e => e.type))];
-          document.querySelectorAll("input[type='checkbox']").forEach(checkbox => {//체크박스마다
-            if (checkbox.checked && types.includes(checkbox.id)) {//체크되어있고 타입이 지정되어 있다면
-              const dot = document.createElement("div");
-              dot.classList.add("calendar-dot", checkbox.id);
-              dotWrapper.appendChild(dot);//calendar-dot 클래스를 가진 div 생성
-            }
-          });
-        }
-      }
-  
-      // 체크박스 변경 이벤트 등록 (최초 한 번만)
-      if (day === 1) {//달력에 날짜를 추가할 때 첫 번째만
+          const dotWrapper = document.createElement("div");
+          dotWrapper.classList.add("calendar-dots");
 
-        document.querySelectorAll("input[type='checkbox']").forEach(checkbox => {
-          checkbox.addEventListener("change", () => {//아예 checkbox에 이런 기능을 부여함,그래서 add구나!
-            // 모든 날짜 셀의 점을 갱신
-            document.querySelectorAll(".day-cell").forEach(cell => {
-              const dayNum = cell.querySelector("div").textContent;
-              const dots = cell.querySelector(".calendar-dots");
-              if (dots && !isNaN(dayNum)) {
-                // 각 날짜 셀의 updateDots를 호출
-                // dayNum은 문자열이므로 정수로 변환
-                const update = cell.updateDots;//저 밑에 dayDiv.updateDots = updateDots; 이걸 넣었기 따문에 지연스레 함수가 호출된다
-                if (typeof update === "function") update();
-              }
-            });
-          });
+          types.forEach(type => {
+          const dot = document.createElement("div");
+          dot.classList.add("calendar-dot", type);  // 색상 추가
+          dotWrapper.appendChild(dot);
         });
-      }
   
-      // 각 셀에 updateDots 함수 연결
-      dayDiv.updateDots = updateDots;//js에 이런 문법이 있구나;;;
-      updateDots();
-  
+        dayDiv.appendChild(dotWrapper);
+        }
+      
+
       // 날짜 클릭 시 일정 표시 및 배경색 변화 (기존 코드 유지)
       dayDiv.addEventListener("click", () => {
         const dateString = `${year}년 ${month + 1}월 ${day}일`;

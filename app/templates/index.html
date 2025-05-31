@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>OaO</title>
     <link rel="stylesheet" href="{{ url_for('static', path='css/index.css') }}">
+    <link rel="stylesheet" href="/static/css/calendar.css" />
     <link 
         rel="apple-touch-icon"
         sizes="180x180"
@@ -35,6 +36,38 @@
                 <p id="text1">국회 위원회 한 눈에 보기</p>
                 <p id="text2">위원회 소개와 일정까지 한 번에 확인해보세요</p>
             </div>
+            <!-- 달력 + 일정 카드 -->
+            <div class="calendar-container">
+                <div class="calendar-section card">
+                <div class="calendar-header">
+                    <!-- 월 이동 버튼 -->
+                    <button id="prevMonthBtn">◀</button>
+                    <span id="monthYear">2025년 5월</span>
+                    <button id="nextMonthBtn">▶</button>
+                </div>
+                <div class="calendar-grid" id="calendarGrid"></div>
+
+                <!-- 달력 내부 색상 -->
+                <div class="legend-container in-calendar">
+                    <span><span class="dot General"></span> 전체회의</span>
+                    <span><span class="dot Small"></span> 소위원회</span>
+                    <span><span class="dot Public"></span> 공청회</span>
+                    <span><span class="dot Hearing"></span> 청문회</span>
+                </div>
+                </div>
+
+                <!-- 일정 리스트 카드 -->
+                <div class="schedule-section card">
+                <div id="selectedDate">날짜를 선택해주세요</div>
+                <ul id="scheduleList">
+                    <li>이곳에 일정이 표시됩니다</li>
+                </ul>
+                </div>
+            </div>
+            <div class="agendaContainer-main agenda-container card ">
+            <h3>✔ 안건명</h3>
+            <p id="agendaDetail">일정을 선택하면 이곳에 상세 내용이 표시됩니다.</p>
+             </div>
             <div class="committe_container">
                 
                 <div id="HSC" class="committe_baseset">
@@ -184,8 +217,14 @@
         </div>
     </main>
     
-    
+    <footer class="main-footer">
+    &copy OAO
+  </footer>
+
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="{{ url_for('static', path='js/index.js') }}" defer></script>
+   
+
+  <script src="/static/js/calendar.js"></script>
 </body>
 </html>

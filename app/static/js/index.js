@@ -1,19 +1,3 @@
-function click_committe_info(title) {
-    const cachelees_url="/static/html/committe_info.html"+"?nocache"+ new Date().getTime()
-    var newWindow = window.open(cachelees_url,"_blank");
-    
-    newWindow.onload = function() {
-        newWindow.document.title = title;
-    };
-}
-function click_committe_date(title) {
-    const cachelees_url="/static/html/committe_info.html"+"?nocache"+ new Date().getTime()
-    
-    var newWindow = window.open(cachelees_url,"_blank");
-        newWindow.onload = function() {
-        newWindow.document.title = title;
-    };
-}
 
 const parentElement = document.querySelectorAll(".committe_baseset") // 부모 요소 선택
 
